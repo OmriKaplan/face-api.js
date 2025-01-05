@@ -91,6 +91,10 @@ function renderNavBar(navbarId, exampleUri) {
     {
       uri: 'batch_face_recognition',
       name: 'Batch Face Recognition'
+    },
+    {
+      uri: 'webcam_face_detection_play_video',
+      name: 'Webcam Face Detection Play Video'
     }
   ]
 
