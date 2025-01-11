@@ -232,13 +232,13 @@
                     const isFacingCamera = Math.abs(nose[3].x - (jawLine[0].x + jawLine[16].x) / 2) < 20;
 
                     // Control video playback
-                    if (facePercentage >= 0.2 && isFacingCamera) {
+                    if (!isFacingCamera) {  // todo: should pause the video
                         console.log('Face is facing the camera');
                         if (contentVideo.paused) {
                             console.log('Playing content video');
                             contentVideo.play();
                         }
-                    } else if (!isFacingCamera) {
+                    } else if (facePercentage >= 0.2 && isFacingCamera) {  // todo: should play the video
                         console.log('Face is not facing the camera');
                         if (ease >= EASE_THRASHOLD) {
                             pauseContentVideo();
