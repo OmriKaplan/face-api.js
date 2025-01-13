@@ -95,6 +95,10 @@ function renderNavBar(navbarId, exampleUri) {
     {
       uri: 'webcam_face_detection_play_video',
       name: 'Webcam Face Detection Play Video'
+    },
+    {
+      uri: 'face_detection_image_switcher',
+      name: 'Face Detection Image Switcher'
     }
   ]
 
