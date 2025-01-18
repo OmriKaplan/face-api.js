@@ -1,0 +1,22 @@
+# Face Recognition Homework
+
+Wtire a web app that recieves a video stream from a camera. When
+a face is recognized in the video, and the face is directed
+at the screen and it takes up 20 percent of the image or more,
+play a video on the screen. When the face is directed away from 
+the screen pause the video. When the face takes less than 20
+percent of the screen stop the video to be ready to play from the
+beginning when a face is recognized again.
+The app should be written in vanilla javascript and use yarn as a package manager.
+
+## Requirements
+
+Implement the following requirements using face-api.js and vanilla javascript.
+- When no one is in front of the camera, show a default image
+- When someone is looking at the camera, show the default image
+- When someone is looking at the camera from the side, show a different image
+- When the person looks back at the camera, show the default image
+- When there is more than one person, show the default image and don't change it
+- Detect faces better
+- Run it with a network camera
+- Run with an external server
