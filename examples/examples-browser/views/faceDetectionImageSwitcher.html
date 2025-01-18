@@ -154,6 +154,7 @@
         let pausedAt = 0;
         let easeThrashold = 10;
         let facePercentageOfImage = 80;
+        let isChanged = false;
 
         const cameraButton = document.getElementById('cameraButton');
         const errorDisplay = document.getElementById('error');
@@ -223,6 +224,7 @@
         
         function showDefaultImage() {
             contentImage.src = 'bananas-04.jpg';
+            isChanged = false;
         }
         
         function getRandomBananaImage() {
@@ -246,6 +248,7 @@
           console.log(imageName);
           contentImage.src = imageName;
           playRandomSound();
+          isChanged = true;
         }
 
         // Face detection loop
@@ -288,16 +291,20 @@
                     } else if (!isFacingCamera) {
                         console.log('Face is not facing the camera');
                         if (ease >= easeThrashold) {
-                            showSideViewImage();
-                            ease = 0;
+                            if (!isChanged) {
+                                showSideViewImage();
+                                ease = 0;
+                            }
                         } else {
                             ease++;
                         }
                     } else if (facePercentage < facePercentageOfImage) {
                         console.log('Face is not in the frame');
                         if (ease >= easeThrashold) {
-                            showSideViewImage();
-                            ease = 0;
+                            if (!isChanged) {
+                                showSideViewImage();
+                                ease = 0;
+                            }
                         } else {
                             ease++;
                         }
