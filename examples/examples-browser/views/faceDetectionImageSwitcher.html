@@ -131,7 +131,7 @@
         </div>
         <div id="error" class="error"></div>
         <div>
-            <img id="contentImage" src="bananas-01.jpg" width="640" height="480" class="main-image"/>
+            <img id="contentImage" src="bananas-04.jpg" width="640" height="480" class="main-image"/>
             
             <div class="video-overlay">
                 <video class="video-element" id="inputVideo" autoplay muted playsinline></video>
@@ -141,7 +141,7 @@
     <div class="controls">
         <label for="easeThrashold">Ease Thrashold (1-100):</label>
         <input type="number" id="easeThrashold" value="10" min="1" max="100">
-
+        <br>
         <label for="facePercentageOfImage">Face Percentage (1-100):</label>
         <input type="number" id="facePercentageOfImage" value="80" min="1" max="100">
     </div>
@@ -222,11 +222,19 @@
         }
         
         function showDefaultImage() {
-            contentImage.src = 'bananas-01.jpg';
+            contentImage.src = 'bananas-04.jpg';
+        }
+        
+        function getRandomBananaImage() {
+            const randomNum = Math.floor(Math.random() * 4) + 1;
+            const paddedNum = randomNum.toString().padStart(2, '0');
+            return `bananas-${paddedNum}.jpg`;
         }
         
         function showSideViewImage() {
-            contentImage.src = 'bananas-02.jpg';
+          let imageName = getRandomBananaImage();
+          console.log(imageName);
+          contentImage.src = imageName;
         }
 
         // Face detection loop
@@ -253,12 +261,14 @@
                     const imageArea = displaySize.width * displaySize.height;
                     const faceArea = faceBox.width * faceBox.height;
                     const facePercentage = (faceArea / imageArea) * 100;
+                    console.log('Face percentage:', facePercentage);
 
                     // Calculate face direction
                     const landmarks = face.landmarks;
                     const jawLine = landmarks.getJawOutline();
                     const nose = landmarks.getNose();
                     const isFacingCamera = Math.abs(nose[3].x - (jawLine[0].x + jawLine[16].x) / 2)*facePercentage < facePercentageOfImage;
+                    console.log('Is facing camera:', isFacingCamera);
 
                     // Control video playback
                     if (facePercentage >= 0.2 && isFacingCamera) {
@@ -272,7 +282,7 @@
                         } else {
                             ease++;
                         }
-                    } else if (facePercentage < 20) {
+                    } else if (facePercentage < facePercentageOfImage) {
                         console.log('Face is not in the frame');
                         if (ease >= easeThrashold) {
                             showSideViewImage();
