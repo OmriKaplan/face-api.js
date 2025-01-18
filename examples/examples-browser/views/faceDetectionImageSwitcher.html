@@ -231,10 +231,21 @@
             return `bananas-${paddedNum}.jpg`;
         }
         
+        function playRandomSound() {
+            const randomNum = Math.floor(Math.random() * 4) + 1;
+            const paddedNum = randomNum.toString().padStart(2, '0');
+            const audio = new Audio(`laugh-${paddedNum}.mp3`);
+            audio.play()
+                .catch(error => {
+                    console.error('Error playing sound:', error);
+                });
+        }
+        
         function showSideViewImage() {
           let imageName = getRandomBananaImage();
           console.log(imageName);
           contentImage.src = imageName;
+          playRandomSound();
         }
 
         // Face detection loop
