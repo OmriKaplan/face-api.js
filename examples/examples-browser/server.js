@@ -14,6 +14,7 @@ app.use(express.static(path.join(__dirname, '../images')))
 app.use(express.static(path.join(__dirname, '../media')))
 app.use(express.static(path.join(__dirname, '../../weights')))
 app.use(express.static(path.join(__dirname, '../../dist')))
+app.use("/favicon.ico", express.static(path.join(__dirname, '../images/favicon.ico')))
 
 app.get('/', (req, res) => res.redirect('/face_detection'))
 app.get('/face_detection', (req, res) => res.sendFile(path.join(viewsDir, 'faceDetection.html')))
