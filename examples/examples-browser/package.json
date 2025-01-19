@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node --watch-path=. server.js"
   },
   "author": "justadudewhohacks",
   "license": "MIT",
