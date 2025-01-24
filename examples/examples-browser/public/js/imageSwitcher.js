@@ -19,7 +19,6 @@ const tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({
     scoreThreshold: 0.7
 });
 
-// Initialize face-api
 async function initFaceAPI() {
     try {
         await Promise.all([
@@ -34,18 +33,15 @@ async function initFaceAPI() {
     }
 }
 
-// Show error message
 function showError(message) {
     errorDisplay.textContent = message;
     errorDisplay.style.display = 'block';
 }
 
-// Hide error message
 function hideError() {
     errorDisplay.style.display = 'none';
 }
 
-// Start camera
 async function startCamera() {
     try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -67,7 +63,6 @@ async function startCamera() {
     }
 }
 
-// Stop camera
 function stopCamera() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -86,7 +81,7 @@ function incrementEase() {
   if (ease == 0) {
     setTimeout(clearEase, 1000);
     console.debug('Started ease timer');
-  } else if (ease == easeThrashold) {
+  } else if (ease >= easeThrashold) {
     console.debug('Reached ease thrashold, clearing ease');
     clearEase();
     return;
