@@ -4,15 +4,12 @@ let stream = null;
 let ease = 0;
 let pausedAt = 0;
 let easeThrashold = 3;
-let facePercentageOfImage = 80;
 let isChanged = false;
+let soundPlayed = false;
 
-const cameraButton = document.getElementById('cameraButton');
 const errorDisplay = document.getElementById('error');
 const inputVideo = document.getElementById('inputVideo');
 const contentImage = document.getElementById('contentImage');
-const easeThrasholdInput = document.getElementById('easeThrashold');
-const facePercentageOfImageInput = document.getElementById('facePercentageOfImage');
 const detector = new FaceDirectionDetector();
 const tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({
     inputSize: 512,
@@ -26,7 +23,6 @@ async function initFaceAPI() {
             faceapi.nets.faceLandmark68Net.load('/')
         ]);
         isInitialized = true;
-        cameraButton.disabled = false;
     } catch (err) {
         showError('Failed to load face detection models');
         console.error('Error loading models:', err);
@@ -54,7 +50,6 @@ async function startCamera() {
         
         inputVideo.srcObject = stream;
         isCameraActive = true;
-        cameraButton.textContent = 'Stop Camera';
         hideError();
         startFaceDetection();
     } catch (err) {
@@ -68,44 +63,49 @@ function stopCamera() {
         stream.getTracks().forEach(track => track.stop());
         inputVideo.srcObject = null;
         isCameraActive = false;
-        cameraButton.textContent = 'Start Camera';
     }
 }
 
 function clearEase() {
-    ease = 0;
-    console.debug('Cleared ease');
+  console.debug(`action='clear ease', ease=${ease}`);
+  ease = 0;
 }
 
 function incrementEase() {
   if (ease == 0) {
     setTimeout(clearEase, 1000);
-    console.debug('Started ease timer');
+    console.debug(`action='increment ease', ease=${ease}`);
   } else if (ease >= easeThrashold) {
-    console.debug('Reached ease thrashold, clearing ease');
+    console.debug(`action='increment ease', ease=${ease}`);
     clearEase();
     return;
   }
   
   ease += 1;
-  console.debug('Incremented ease:', ease);
+  console.debug(`action='increment ease', ease=${ease}`);
 }
 
 function isInEase() {
   let inEase = ease > 0 && ease < easeThrashold;
-  console.debug("In ease:", inEase);
+  console.debug(`action='in ease', inEase=${inEase}, ease=${ease}`);
   return inEase;
 }
 
 function showDefaultImage() {
   if (isInEase()) {
+    console.debug(`action='show default image', ease=${ease}, isChanged=${isChanged}, isInEase=${isInEase()}`);
     incrementEase();
     return;
   }
+  if (!isChanged) {
+    console.debug(`action='show default image', ease=${ease}, isChanged=${isChanged}, isInEase=${isInEase()}`);
+    return;
+  }
   
+  console.debug(`action='showing default image', ease=${ease}, isChanged=${isChanged}, isInEase=${isInEase()}`);
   contentImage.src = 'bananas-04.jpg';
   isChanged = false;
-  console.debug('Showing default image');
+  soundPlayed = false;
   incrementEase();
 }
 
@@ -116,13 +116,19 @@ function getRandomBananaImage() {
 }
 
 function playRandomSound() {
-    const randomNum = Math.floor(Math.random() * 3) + 1;
-    const paddedNum = randomNum.toString().padStart(2, '0');
-    const audio = new Audio(`laugh-${paddedNum}.mp3`);
-    audio.play()
-        .catch(error => {
-            console.error('Error playing sound:', error);
-        });
+  if (soundPlayed) {
+    console.debug(`action='play random sound', soundPlayed=${soundPlayed}`);
+    return;
+  }
+  
+  soundPlayed = true;
+  const randomNum = Math.floor(Math.random() * 3) + 1;
+  const paddedNum = randomNum.toString().padStart(2, '0');
+  const audio = new Audio(`laugh-${paddedNum}.mp3`);
+  audio.play()
+      .catch(error => {
+          console.error('Error playing sound:', error);
+      });
 }
 
 function showSideViewImage() {
@@ -152,8 +158,6 @@ async function detect(detector, video, callback) {
 
 // Face detection loop
 async function startFaceDetection() {
-    easeThrashold = easeThrasholdInput.value;
-    facePercentageOfImage = facePercentageOfImageInput.value;
     const displaySize = {
         width: 640,
         height: 480
@@ -161,26 +165,22 @@ async function startFaceDetection() {
 
     setInterval(detect, 100, detector, inputVideo, (result) => {
         if (result) {
-          console.log('Number of faces detected:', result.faces.length);
+          console.debug(`action='detect callback', faces_detected=${result.faces.length}`);
           
-          if (result.faces.length == 0) {
+          if (result.faces.length == 0 || result.faces.length > 1) {
+            console.debug(`action='detect callback', faces_detected=${result.faces.length}`);
             showDefaultImage();
             return;
           }
           
-          result.faces.forEach((face, index) => {
-              console.log(`Face ${index + 1}:`, {
-                  isFrontal: face.isFrontal,
-                  confidence: face.confidence,
-                  position: face.position
-              });
-              if (face.isFrontal) {
-                showDefaultImage();
-              } else {
-                showSideViewImage();
-                playRandomSound();
-              }
-          });
+          let face = result.faces[0];
+          console.debug(`action='detect callback', isFrontal=${face.isFrontal}, confidence=${face.confidence}`)
+          if (face.isFrontal) {
+            showDefaultImage();
+          } else {
+            showSideViewImage();
+            playRandomSound();
+          }
         } else {
             console.error('No result from face detection');
             showDefaultImage();
@@ -188,14 +188,5 @@ async function startFaceDetection() {
     })
 }
 
-// Event listeners
-cameraButton.addEventListener('click', () => {
-    if (isCameraActive) {
-        stopCamera();
-    } else {
-        startCamera();
-    }
-});
-
-// Initialize on load
 initFaceAPI();
+startCamera();

@@ -10,26 +10,14 @@
     <link rel="stylesheet" href="imageSwitcherStyles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Face Detection Video Player</h1>
-            <button id="cameraButton" class="camera-button" disabled>Start Camera</button>
-        </div>
+    <img id="contentImage" src="bananas-04.jpg" class="main-image"/>
+    <div class="container" hidden>
         <div id="error" class="error"></div>
         <div>
-            <img id="contentImage" src="bananas-04.jpg" width="640" height="480" class="main-image"/>
-            
             <div class="video-overlay" hidden>
                 <video class="video-element" id="inputVideo" autoplay muted playsinline/>
             </div>
         </div>
-    </div>
-    <div class="controls">
-        <label for="easeThrashold">Ease Thrashold (1-100):</label>
-        <input type="number" id="easeThrashold" value="10" min="1" max="100">
-        <br>
-        <label for="facePercentageOfImage">Face Percentage (1-100):</label>
-        <input type="number" id="facePercentageOfImage" value="80" min="1" max="100">
     </div>
     <script src="js/imageSwitcher.js"></script>
 </body>

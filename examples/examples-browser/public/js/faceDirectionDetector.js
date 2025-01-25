@@ -16,6 +16,12 @@ class FaceDirectionDetector {
         this.video = null;
         this.canvas = null;
         this.onFacesDetected = null;
+        this.model = null;
+        this.tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({
+            inputSize: 512,
+            scoreThreshold: 0.7
+        });
+        this.ssdOptions = new faceapi.SsdMobilenetv1Options();
     }
 
     async initialize() {
@@ -25,6 +31,7 @@ class FaceDirectionDetector {
             // Load required face-api.js models
             await Promise.all([
                 faceapi.nets.tinyFaceDetector.loadFromUri('/'),
+                faceapi.nets.ssdMobilenetv1.loadFromUri('/'),
                 faceapi.nets.faceLandmark68Net.loadFromUri('/')
             ]);
             
@@ -41,14 +48,6 @@ class FaceDirectionDetector {
 
         this.video = videoElement;
         this.onFacesDetected = callback;
-
-        // Create canvas for visualization if needed
-        // this.canvas = faceapi.createCanvasFromMedia(this.video);
-        // this.canvas.style.position = 'absolute';
-        // this.canvas.style.top = '0';
-        // this.canvas.style.left = '0';
-        // this.video.parentNode.appendChild(this.canvas);
-
         this.isRunning = true;
       
         if (!this.isRunning || !this.video || this.video.paused || this.video.ended) {
@@ -59,7 +58,7 @@ class FaceDirectionDetector {
         try {
             // Detect all faces in the frame
             const detections = await faceapi
-                .detectAllFaces(this.video, new faceapi.TinyFaceDetectorOptions())
+                .detectAllFaces(this.video, this.ssdOptions)
                 .withFaceLandmarks();
 
             // Filter by confidence and limit number of faces if specified
@@ -85,39 +84,6 @@ class FaceDirectionDetector {
                 this.onFacesDetected({
                     faces: facesAnalysis,
                     timestamp: Date.now()
-                });
-            }
-
-            // Visualize results if canvas exists
-            if (this.canvas) {
-                const dims = faceapi.matchDimensions(this.canvas, this.video, true);
-                const resizedDetections = faceapi.resizeResults(validDetections, dims);
-                
-                // Clear previous drawings
-                const ctx = this.canvas.getContext('2d');
-                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                // Draw face landmarks and additional information
-                resizedDetections.forEach((detection, index) => {
-                    const isFrontal = facesAnalysis[index].isFrontal;
-                    
-                    // Draw landmarks
-                    faceapi.draw.drawFaceLandmarks(this.canvas, detection);
-                    
-                    // Draw bounding box with color based on frontal status
-                    const box = detection.detection.box;
-                    ctx.strokeStyle = isFrontal ? '#00ff00' : '#ff0000';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(box.x, box.y, box.width, box.height);
-                    
-                    // Draw face status
-                    ctx.fillStyle = isFrontal ? '#00ff00' : '#ff0000';
-                    ctx.font = '16px Arial';
-                    ctx.fillText(
-                        `Face ${index + 1}: ${isFrontal ? 'Frontal' : 'Not Frontal'}`,
-                        box.x,
-                        box.y - 5
-                    );
                 });
             }
         } catch (error) {
